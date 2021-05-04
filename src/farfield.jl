@@ -5,7 +5,8 @@ export initFarfieldWav
 simulate far-field effects by auto-gain-ctrl method.
 """
 function farfieldWav(wav::Array, fs::Real=16000.0; maxvalue::Real=0.6, minstep::Real=-0.6)
-    wav .*= 1.0 / (maximum(abs.(wav)) + 3e-5);
+    MAX = maximum(abs.(wav)) + 3e-5
+    wav .*= 1.0 / MAX;
     minstep  = (-1.0 < minstep < 0.0) ? minstep : -0.6
     maxvalue = (0.0 < maxvalue < 1.0) ? maxvalue : 0.6
     gain   = 1.0
@@ -22,7 +23,7 @@ function farfieldWav(wav::Array, fs::Real=16000.0; maxvalue::Real=0.6, minstep::
         step = step * abs(step);
         step = max(minstep, min(step, 0.0));
         gain = 0.8*gain + 0.2*(1 + step);
-        wav[index] .*= gain;
+        wav[index] .*= gain * MAX;
     end
     return wav
 end
