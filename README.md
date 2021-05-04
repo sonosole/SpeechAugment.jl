@@ -51,6 +51,7 @@ initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number
 + `fs` sampling rate
 + `T₆₀Span` effective reverberation time e.g. (minT60, maxT60)
 + `roomSpan` room size e.g. (MinL, MaxL, MinW, MaxW, MinH, MaxH)
+
 ![addEcho](./doc/reverberate.png)
 
 ```julia
@@ -59,12 +60,14 @@ initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
 + `path` a path only full of noise WAVs
 + `period` every #period it would change another noise wav.
 + `dBSpan` span of SNR e.g. (mindB, maxdB)
+
 ![addNoise](./doc/noisy.png)
 
 ```julia
 initClipWav(clipSpan::NTuple{2,Number})
 ```
 + `clipSpan` how much it would clip a wav e.g. (0.5,2.0)
+
 ![distortion](./doc/distortion.png)
 
 ```julia
@@ -72,6 +75,7 @@ initDropWav(fs::Real, ratioSpan::NTuple{2,Number})
 ```
 + `fs` sampling rate
 + `ratioSpan` span of droping ratio e.g. (0.02, 0.09). 1.0 is the uplimit.
+
 ![randomdrop](./doc/randomdrop.png)
 
 ```julia
@@ -79,13 +83,16 @@ initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number})
 ```
 + `fs` sampling rate
 + `maxvalueSpan` ranges from (0.0,1.0). Smaller means farther away. (0.2, 0.9) is recommended.
+
 ![farfield](./doc/farfield.png)
 
 ```julia
 initSpeedWav(speedSpan::NTuple{2,Number})
 ```
 + `speedSpan` range of speed perturbation. (0.85, 1.15) is recommended.
+
 ![slow](./doc/slowx08.png)
+
 ![fast](./doc/fastx12.png)
 
 All the `NTuple{2,Number}` parameters should follow the small on the left and the big on the right i.e. (minvalue, maxvalue)
