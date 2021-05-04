@@ -6,3 +6,8 @@ version = "0.1.0"
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
+
+[compat]
+julia = ">= 1.0.0"
+FFTW = ">= 0.2.4"
+WAV = ">= 1.0.0"
