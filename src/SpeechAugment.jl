@@ -11,4 +11,4 @@ include("./farfield.jl")
 include("./speed.jl")
 include("./augment.jl")
 
-end # module
+end
