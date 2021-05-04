@@ -16,6 +16,16 @@ This repo supports audio data augmentations such as :
 
 After those time domain augmentations, one can apply feature extraction step.
 
+## Installation
+Enter the REPL mode
+```julia
+]add SpeechAugment
+```
+or
+```julia
+Pkg.add("SpeechAugment")
+```
+
 ## Example
 
 ```julia
