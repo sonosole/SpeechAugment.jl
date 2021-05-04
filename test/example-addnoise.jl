@@ -1,11 +1,11 @@
 using WAV
-using SpeechAugment: addNoise
+using SpeechAugment
 
-dB = 1.0
+dB = (5.0, 15.0)
 period = 10
 # read a wav file
 wav = wavread("xxx.wav")[1]
 # init a addnoise function with dir only having noise audios
-addnoise = initAddNoise("XXPathFullOfNoiseWAVs", period)
+addnoise = initAddNoise("XXPathFullOfNoiseWAVs", period, dB)
 # every period times the addnoise function would change a background noise audio
-noisy = addNoise(wav, dB);
+noisy = addnoise(wav);

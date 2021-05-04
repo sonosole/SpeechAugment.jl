@@ -3,7 +3,7 @@ using SpeechAugment: addEcho
 
 T60 = 0.2
 # read a wav file
-wav,fs = wavread("xxx.wav")[1]
+wav,fs = wavread("xxx.wav")
 # add reverberation effect on audio
 echowav = addEcho(wav, fs, T60,
                   (3, 4, 2.5),      # room size
