@@ -48,9 +48,20 @@ speed = initSpeedWav((0.8,1.2));
 fnlist = [echo noise clip drop far speed];
 
 # 4. augment #batchSize audios
+wavs = Vector(undef, batchsize)
+for i = 1:batchsize
+    wavs[i] = copy(data)
+end
 wavs = augmentWavs(fnlist, wavs)
 for i = 1:batchsize
     wavwrite(wavs[i], "A$i.wav",Fs=16000,nbits=32)
+end
+
+# there is also a function called `augmentWav`
+# it augments one audio into multiple audios.
+audios = augmentWavs(fnlist, data, batchsize)
+for i = 1:batchsize
+    wavwrite(audios[i], "B$i.wav",Fs=16000,nbits=32)
 end
 ```
 
@@ -101,8 +112,8 @@ initSpeedWav(speedSpan::NTuple{2,Number})
 ```
 + `speedSpan` range of speed perturbation. (0.85, 1.15) is recommended.
 
-![slow](./doc/slowx08.png)
+![fast](./doc/Tx08.png)
 
-![fast](./doc/fastx12.png)
+![slow](./doc/Tx12.png)
 
 All the `NTuple{2,Number}` parameters should follow the small on the left and the big on the right i.e. (minvalue, maxvalue)
