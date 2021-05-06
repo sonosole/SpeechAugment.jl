@@ -1,4 +1,6 @@
 export initDropWav
+export dropWav
+
 
 """
     y = dropWav(wav::Array, fs::Real=16000.0; ratio::Real=0.05)
@@ -19,10 +21,16 @@ function dropWav(wav::Array, fs::Real=16000.0; ratio::Real=0.05)
 end
 
 
+"""
+    initDropWav(fs::Real, ratioSpan::NTuple{2,Number}) -> dropwav(wav::Array)
+init packet-loss-simulation function.
++ `fs` sampling rate e.g. 16000.0
++ `ratioSpan` e.g. (0.02, 0.09)
+"""
 function initDropWav(fs::Real, ratioSpan::NTuple{2,Number})
     MinR, MaxR = ratioSpan
     @assert MinR <= MaxR
-    function dropwav(wav::Array{T,2}) where T
+    function dropwav(wav::Array)
         ratio = rand()*(MaxR - MinR) + MinR
         return dropWav(wav, fs; ratio=ratio)
     end

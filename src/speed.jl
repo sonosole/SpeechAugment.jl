@@ -1,11 +1,14 @@
 export initSpeedWav
+export speedWav
+
+
 """
     y = speedWav(wav, k)
 change wav's speed. Speedup value ∈ [0.8,1.2] is normal and recommended.
 """
-function speedWav(wav, k)
+function speedWav(wav::Array, k)
     @assert 1.5>=k>=0.5
-    N = length(wav);
+    N = veclen(wav);
     O = N>>1;
     X = fft(wav);
     D = floor(Int, k * O);
@@ -17,10 +20,15 @@ function speedWav(wav, k)
 end
 
 
+"""
+    initSpeedWav(speedSpan::NTuple{2,Number}) -> speedwav(wav::Array)
+init speed perturbation effect function
++ `speedSpan` e.g. (0.8, 1.2)
+"""
 function initSpeedWav(speedSpan::NTuple{2,Number})
     MinSpeed, MaxSpeed = speedSpan
     @assert MinSpeed <= MaxSpeed
-    function speedwav(wav::Array{T,2}) where T
+    function speedwav(wav::Array)
         return speedWav(wav, rand()*(MaxSpeed - MinSpeed) + MinSpeed)
     end
     return speedwav

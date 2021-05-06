@@ -1,4 +1,6 @@
 export initAddEcho
+export addEcho
+
 
 """
     arcrc(T₆₀::Number, Lᵣ::NTuple{3,Number})
@@ -32,8 +34,8 @@ convolves vectors x and h. The resulting vector is length length(x)+length(h)-1 
 has a O(Lx*Lh) complexity.
 """
 function directconv(x, h)
-    Lx = length(x)
-    Lh = length(h)
+    Lx = veclen(x)
+    Lh = veclen(h)
     L  = Lx + Lh - 1
     y  = zeros(eltype(x), L)
     c  = h[end:-1:1]
@@ -59,8 +61,8 @@ convolves signals x and h. The resulting signal has length (Lx + Lh - 1) which
 has nearly O(Lx*Log(Lx)) complexity when Lx>>Lh. This function uses fft to reduce complexity.
 """
 function conv(x, h)
-    Lx = length(x)
-    Lh = length(h)
+    Lx = veclen(x)
+    Lh = veclen(h)
     L  = Lx + Lh - 1
     xₑ = zeros(eltype(x), L)
     hₑ = zeros(eltype(h), L)
@@ -115,10 +117,10 @@ end
 
 
 """
-    y = addEcho(wav, fs::Number, T60::Number,
-                     room::NTuple{3,Number},
-                     src::NTuple{3,Number},
-                     mic::NTuple{3,Number})
+    y = addEcho(wav::Array, fs::Number, T60::Number,
+                room::NTuple{3,Number},
+                src::NTuple{3,Number},
+                mic::NTuple{3,Number})
 Generate impulse response function online, and add reverberation effect to wav.
 ## Arguments
 - `wav`: sound samples
@@ -128,7 +130,7 @@ Generate impulse response function online, and add reverberation effect to wav.
 - `src`: source's coordinates in meters, e.g., (1, 2, 1.2)
 - `mic`: micphone's coordinates in meters, e.g., (1.6, 2.6, 1.0)
 """
-function addEcho(wav, fs::Number, T60::Number,
+function addEcho(wav::Array, fs::Number, T60::Number,
                  room::NTuple{3,Number},
                  src::NTuple{3,Number},
                  mic::NTuple{3,Number})
@@ -139,19 +141,27 @@ end
 function initAddEcho(path::String, period::Int)
     counter = 1
     h = nothing
-    function echo(speech::Array{T,2}) where T
+    FILES = readdir(path)
+    function addecho(speech::Array)
         if counter == 1
-            file = rand(readdir(path),1)[1]
+            file = rand(FILES,1)[1]
             @assert endswith(file, "wav") "$path should only keep *.wav files"
             h, fs = wavread(joinpath(path, file))
         end # read another Room Impulse Response every period
         (counter == period) ? (counter=1) : (counter+=1)
         return conv(speech, h)
     end
-    return echo
+    return addecho
 end
 
 
+"""
+    initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number}) -> addecho(wav::Array)
+init reverberation effect function.
++ `fs` sampling rate
++ `T₆₀Span` T₆₀ range e.g. (0.05, 0.5)
++ `roomSpan`room size e.g. (MinL, MaxL, MinW, MaxW, MinH, MaxH)
+"""
 function initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number})
     MinT₆₀, MaxT₆₀ = T₆₀Span
     MinL, MaxL, MinW, MaxW, MinH, MaxH = roomSpan
@@ -159,7 +169,7 @@ function initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple
     @assert MinL <= MaxL
     @assert MinW <= MaxW
     @assert MinH <= MaxH
-    function addecho(wav::Array{T,2}) where T
+    function addecho(wav::Array)
         T₆₀ = rand()*(MaxT₆₀ - MinT₆₀) + MinT₆₀
         Lx  = rand()*(MaxL - MinL) + MinL
         Ly  = rand()*(MaxW - MinW) + MinW

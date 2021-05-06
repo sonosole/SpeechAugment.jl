@@ -1,4 +1,6 @@
 export initFarfieldWav
+export farfieldWav
+
 
 """
     y = farfieldWav(wav::Array, fs::Real=16000.0; maxvalue::Real=0.6, minstep::Real=-0.6)
@@ -29,10 +31,16 @@ function farfieldWav(wav::Array, fs::Real=16000.0; maxvalue::Real=0.6, minstep::
 end
 
 
+"""
+    initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number}) -> farfieldwav(wav::Array)
+init farfield effect function
++ `fs` sampling rate e.g. 16000.0
++ `maxvalueSpan` e.g. (0.2, 1.0)
+"""
 function initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number})
     MinV, MaxV = maxvalueSpan
     @assert MinV <= MaxV
-    function farfieldwav(wav::Array{T,2}) where T
+    function farfieldwav(wav::Array)
         v = rand()*(MaxV - MinV) + MinV
         return farfieldWav(wav, fs, maxvalue=v)
     end

@@ -1,13 +1,18 @@
 export initAddNoise
+export addNoise
 
 
-function addNoise(speech::Array{T,2}, noise::Array{T,2}, dB::Number) where T
-    Ls = length(speech)
-    Ln = length(noise)
+"""
+    addNoise(speech::Array, noise::Array, dB::Number)
+add `noise` in `speech` according to dB
+"""
+function addNoise(speech::Array{T}, noise::Array{T}, dB::Number) where T
+    Ls = veclen(speech)
+    Ln = veclen(noise)
     if Ln<Ls
         # noise is shoter, should be repeated
         noise = repeat(noise, div(Ls,Ln)+1)
-        Ln = length(noise)
+        Ln = veclen(noise)
     end
     s = floor(Int,rand()*(Ln-Ls) + 1);   # a random start index
     e = s + Ls - 1;                      # a random end index
@@ -19,13 +24,20 @@ function addNoise(speech::Array{T,2}, noise::Array{T,2}, dB::Number) where T
 end
 
 
+"""
+    initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number}) -> addnoise(speech::Array)
+init a adding noise function
++ `path` dir only having noise audios
++ `period` how often the addnoise function would change a background noise audio
++ `dBSpan` e.g. (dBMin, dBMax)
+"""
 function initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
     counter = 1
     noise = nothing
     FILES = readdir(path)
     dBMin, dBMax = dBSpan
     @assert dBMin <= dBMax
-    function addnoise(speech::Array{T,2}) where T
+    function addnoise(speech::Array)
         if counter == 1
             file = rand(FILES,1)[1]
             @assert endswith(file, "wav") "$path should only keep *.wav files"
