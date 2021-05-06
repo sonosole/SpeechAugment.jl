@@ -21,8 +21,7 @@ function initSpeedWav(speedSpan::NTuple{2,Number})
     MinSpeed, MaxSpeed = speedSpan
     @assert MinSpeed <= MaxSpeed
     function speedwav(wav::Array{T,2}) where T
-        vec = rand()*(MaxSpeed - MinSpeed) + MinSpeed
-        return speedWav(wav, vec)
+        return speedWav(wav, rand()*(MaxSpeed - MinSpeed) + MinSpeed)
     end
     return speedwav
 end

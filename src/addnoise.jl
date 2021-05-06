@@ -22,11 +22,12 @@ end
 function initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
     counter = 1
     noise = nothing
+    FILES = readdir(path)
     dBMin, dBMax = dBSpan
     @assert dBMin <= dBMax
     function addnoise(speech::Array{T,2}) where T
         if counter == 1
-            file = rand(readdir(path),1)[1]
+            file = rand(FILES,1)[1]
             @assert endswith(file, "wav") "$path should only keep *.wav files"
             noise, fs = wavread(joinpath(path, file))
         end # every period we read another noise
@@ -35,5 +36,3 @@ function initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
     end
     return addnoise
 end
-
-
