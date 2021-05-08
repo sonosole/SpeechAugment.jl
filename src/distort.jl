@@ -3,7 +3,7 @@ export clipWav
 
 
 """
-    y = clipWav(x, a)
+    y = clipWav(x::Array, a)
 use clipping to create distortion effects
 """
 function clipWav(x::Array, a)
