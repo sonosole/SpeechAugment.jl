@@ -26,7 +26,7 @@ or
 Pkg.add("SpeechAugment")
 ```
 To install the development version, enter the REPL mode
-````
+````julia
 ] add https://github.com/sonosole/SpeechAugment.jl.git
 ```
 
