@@ -17,13 +17,17 @@ This repo supports audio data augmentations such as :
 After those time domain augmentations, one can apply feature extraction step.
 
 ## Installation
-Enter the REPL mode
+To install the released stable version, enter the REPL mode
 ```julia
-]add SpeechAugment
+] add SpeechAugment
 ```
 or
 ```julia
 Pkg.add("SpeechAugment")
+```
+To install the development version, enter the REPL mode
+````
+] add https://github.com/sonosole/SpeechAugment.jl.git
 ```
 
 ## Example
@@ -59,7 +63,7 @@ end
 
 # there is also a function called `augmentWav`
 # it augments one audio into multiple audios.
-audios = augmentWavs(fnlist, data, batchsize)
+audios = augmentWav(fnlist, data, batchsize)
 for i = 1:batchsize
     wavwrite(audios[i], "B$i.wav",Fs=16000,nbits=32)
 end
@@ -67,7 +71,7 @@ end
 
 ## Function Parameter Introduction
 ```julia
-initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number})
+initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number}) -> addecho(wav::Array)
 ```
 + `fs` sampling rate
 + `T₆₀Span` effective reverberation time e.g. (minT60, maxT60)
@@ -76,7 +80,7 @@ initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number
 ![addEcho](./doc/reverberate.png)
 
 ```julia
-initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
+initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number}) -> addnoise(speech::Array)
 ```
 + `path` a path only full of noise WAVs
 + `period` every #period it would change another noise wav.
@@ -85,14 +89,14 @@ initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
 ![addNoise](./doc/noisy.png)
 
 ```julia
-initClipWav(clipSpan::NTuple{2,Number})
+initClipWav(clipSpan::NTuple{2,Number}) -> clipwav(wav::Array)
 ```
 + `clipSpan` how much it would clip a wav e.g. (0.5,2.0)
 
 ![distortion](./doc/distortion.png)
 
 ```julia
-initDropWav(fs::Real, ratioSpan::NTuple{2,Number})
+initDropWav(fs::Real, ratioSpan::NTuple{2,Number}) -> dropwav(wav::Array)
 ```
 + `fs` sampling rate
 + `ratioSpan` span of droping ratio e.g. (0.02, 0.09). 1.0 is the uplimit.
@@ -100,7 +104,7 @@ initDropWav(fs::Real, ratioSpan::NTuple{2,Number})
 ![randomdrop](./doc/randomdrop.png)
 
 ```julia
-initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number})
+initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number}) -> farfieldwav(wav::Array)
 ```
 + `fs` sampling rate
 + `maxvalueSpan` ranges from (0.0,1.0). Smaller means farther away. (0.2, 0.9) is recommended.
@@ -108,7 +112,7 @@ initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number})
 ![farfield](./doc/farfield.png)
 
 ```julia
-initSpeedWav(speedSpan::NTuple{2,Number})
+initSpeedWav(speedSpan::NTuple{2,Number}) -> speedwav(wav::Array)
 ```
 + `speedSpan` range of speed perturbation. (0.85, 1.15) is recommended.
 
@@ -116,4 +120,12 @@ initSpeedWav(speedSpan::NTuple{2,Number})
 
 ![slow](./doc/Tx12.png)
 
-All the `NTuple{2,Number}` parameters should follow the small on the left and the big on the right i.e. (minvalue, maxvalue)
+All the `NTuple{2,Number}` parameters should follow the small on the left and the big on the right i.e. (minvalue, maxvalue). To precisely control the extent of augmentation, the below functions could be used:
++ addEcho
++ addNoise
++ clipWav
++ dropWav
++ farfieldWav
++ speedWav
+
+For details, check the documentation or enter the `help?>` mode.
