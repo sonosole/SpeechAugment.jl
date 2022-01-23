@@ -29,13 +29,13 @@ end
 
 
 """
-    initClipWav(clipSpan::NTuple{2,Number}) -> clipwav(wav::Array)
+    initClipWav(clipMin::AbstractFloat, clipMax::AbstractFloat) -> clipwav(wav::Array)
 init distortion effect function
-+ `clipSpan` e.g. (0.5, 2.0)
++ `clipMin` e.g. 0.5
++ `clipMax` e.g. 2.0
 """
-function initClipWav(clipSpan::NTuple{2,Number})
-    clipMin, clipMax = clipSpan
-    @assert clipMin <= clipMax
+function initClipWav(clipMin::AbstractFloat, clipMax::AbstractFloat)
+    @assert 0 < clipMin <= clipMax
     function clipwav(wav::Array)
         return clipWav(wav, rand()*(clipMax - clipMin) + clipMin)
     end
