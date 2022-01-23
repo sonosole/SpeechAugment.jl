@@ -4,18 +4,7 @@ using WAV: wavread
 using FFTW: fft, ifft
 
 
-function veclen(a::Array{T}) where T
-    TYPE = typeof(a)
-    if TYPE <: Array{T,1}
-        return length(a)
-    end
-    if TYPE <: Array{T,2}
-        @assert 1 in size(a)
-        return length(a)
-    end
-end
-
-
+include("./kits.jl")
 include("./addecho.jl")
 include("./addnoise.jl")
 include("./distort.jl")
