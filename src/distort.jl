@@ -7,7 +7,6 @@ export clipWav
 use clipping to create distortion effects
 """
 function clipWav(x::Array, a)
-    if !(2>=a>=0.5); a=1.0; end
     s = (0.4 + 0.1 * rand());
     c = (s + 1) / 2;
     k = (1 - s) / (s - c)^2;
