@@ -13,8 +13,8 @@ V is volume unit m³, S is area unit m²
 """
 function arcrc(T₆₀::Number, Lᵣ::NTuple{3,Number})
     # acoustical reflaction coefficient and counts
-    (T₆₀>3.00) ? (T₆₀=3.00) : (T₆₀=T₆₀) # max time
-    (T₆₀<0.05) ? (T₆₀=0.05) : (T₆₀=T₆₀) # min time
+    if T₆₀>3. T₆₀ = 3.00000 end # max time
+    if T₆₀<0. T₆₀ = 0.00625 end # min time
     x,y,z = Lᵣ
     V = x * y * z                 # volume
     S = (x*y + x*z + y*z)*2       # area
@@ -85,9 +85,9 @@ function rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Numb
     y = zeros(T, N)
     z = zeros(T, N)
     h = zeros(T, L)
-    xr,yr,zr = room  # room's size in meters
-    xs,ys,zs = src   # source's coordinates in meters
-    xm,ym,zm = mic   # micphone's coordinates in meters
+    xr, yr, zr = room  # room's size in meters
+    xs, ys, zs = src   # source's coordinates in meters
+    xm, ym, zm = mic   # micphone's coordinates in meters
     for i=-C:1:C
         if i&1==1 # odd number
             x[i+C+1] = xs + i*xr - xm;
@@ -105,7 +105,8 @@ function rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Numb
             for k=-C:1:C
                 d = sqrt( x[i+C+1]^2 + y[j+C+1]^2 + z[k+C+1]^2 )
                 n = floor(Int, d / 344.0 * fs)
-                if n>L; continue; end
+                if n>L;  continue; end
+                if n==0; continue; end
                 if maxi<n; maxi=n;end
                 m = abs(i) + abs(j) + abs(k)
                 h[n] += γ^m / d
