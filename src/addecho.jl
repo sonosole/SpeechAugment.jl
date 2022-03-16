@@ -88,7 +88,7 @@ function rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Numb
     xr, yr, zr = room  # room's size in meters
     xs, ys, zs = src   # source's coordinates in meters
     xm, ym, zm = mic   # micphone's coordinates in meters
-    for i=-C:1:C
+    for i = -C:1:C
         if i&1==1 # odd number
             x[i+C+1] = xs + i*xr - xm;
             y[i+C+1] = ys + i*yr - ym;
@@ -100,20 +100,20 @@ function rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Numb
         end
     end
     maxi = 0
-    for i=-C:1:C
-        for j=-C:1:C
-            for k=-C:1:C
+    λ⁻¹  = fs / 344.0
+    for i = -C:1:C
+        for j = -C:1:C
+            for k = -C:1:C
                 d = sqrt( x[i+C+1]^2 + y[j+C+1]^2 + z[k+C+1]^2 )
-                n = floor(Int, d / 344.0 * fs)
+                n = floor(Int, d * λ⁻¹)
                 if n>L;  continue; end
                 if n==0; continue; end
-                if maxi<n; maxi=n;end
                 m = abs(i) + abs(j) + abs(k)
                 h[n] += γ^m / d
             end
         end
     end
-    return h[1:maxi]
+    return h
 end
 
 
