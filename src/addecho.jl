@@ -128,12 +128,13 @@ function rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Numb
                 n = floor(Int, d * λ⁻¹)
                 if n>L;  continue; end
                 if n==0; continue; end
+                if maxi<n; maxi=n; end
                 m = abs(i) + abs(j) + abs(k)
                 h[n] += γ^m / d
             end
         end
     end
-    return h
+    return h[1:maxi]
 end
 
 
