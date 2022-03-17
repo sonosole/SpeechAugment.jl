@@ -73,6 +73,26 @@ end
 
 
 """
+    y = maxconv(x, h)
+convolves signals x and h. The resulting signal has length max(Lx,Lh) which
+has nearly O(Lx*Log(Lx)) complexity when Lx>>Lh. This function uses fft to reduce complexity.
+"""
+function maxconv(x, h)
+    Lx = veclen(x)
+    Lh = veclen(h)
+    if Lx ≥ Lh
+        H = zeros(eltype(h), Lx)
+        copyto!(H, h)
+        return real(ifft( fft(x) .* fft(H) ))
+    else
+        X = zeros(eltype(x), Lh)
+        copyto!(X, x)
+        return real(ifft( fft(X) .* fft(h) ))
+    end
+end
+
+
+"""
     y = rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Number}, mic::NTuple{3,Number})
 Generate room impulse response.
 """
@@ -133,9 +153,12 @@ Generate impulse response function online, and add reverberation effect to wav.
 """
 function addEcho(wav::Array, fs::Number, T60::Number,
                  room::NTuple{3,Number},
-                 src::NTuple{3,Number},
-                 mic::NTuple{3,Number})
-    return conv(wav, rir(fs, T60, room, src, mic))
+                 src ::NTuple{3,Number},
+                 mic ::NTuple{3,Number}; by="maxlen")
+
+    return ifelse(by=="maxlen",
+    maxconv(wav, rir(fs, T60, room, src, mic)),
+    conv(wav, rir(fs, T60, room, src, mic)))
 end
 
 
