@@ -201,8 +201,8 @@ function initAddEcho(fs::Real, T₆₀Span::NTuple{2,Real}, roomSpan::NTuple{6,R
         src  = (rand()*Lx, rand()*Ly, rand()*Lz)
         mic  = (rand()*Lx, rand()*Ly, rand()*Lz)
         return ifelse(by=="maxlen",
-        maxconv(wav, rir(fs, T60, room, src, mic, dtype=dtype)),
-        conv(wav, rir(fs, T60, room, src, mic, dtype=dtype)))
+        maxconv(wav, rir(fs, T₆₀, room, src, mic, dtype=dtype)),
+        conv(wav, rir(fs, T₆₀, room, src, mic, dtype=dtype)))
     end
     return addecho
 end
