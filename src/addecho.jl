@@ -3,7 +3,7 @@ export addEcho
 
 
 """
-    arcrc(T₆₀::Number, Lᵣ::NTuple{3,Number})
+    arcrc(T₆₀::Number, Lᵣ::NTuple{3,Real})
 
                   β * V
 `T₆₀ = ———————————————————————`\n
@@ -11,7 +11,7 @@ export addEcho
 where β = 0.160465, m₄ = 0.0104.
 V is volume unit m³, S is area unit m²
 """
-function arcrc(T₆₀::Number, Lᵣ::NTuple{3,Number})
+function arcrc(T₆₀::Real, Lᵣ::NTuple{3,Real})
     # acoustical reflaction coefficient and counts
     if T₆₀>3. T₆₀ = 3.00000 end # max time
     if T₆₀<0. T₆₀ = 0.00625 end # min time
@@ -33,7 +33,7 @@ end
 convolves vectors x and h. The resulting vector is length length(x)+length(h)-1 which
 has a O(Lx*Lh) complexity.
 """
-function directconv(x, h)
+function directconv(x::Array, h::Array)
     Lx = veclen(x)
     Lh = veclen(h)
     L  = Lx + Lh - 1
@@ -56,11 +56,11 @@ end
 
 
 """
-    y = conv(x, h)
+    y = conv(x::Array, h::Array)
 convolves signals x and h. The resulting signal has length (Lx + Lh - 1) which
 has nearly O(Lx*Log(Lx)) complexity when Lx>>Lh. This function uses fft to reduce complexity.
 """
-function conv(x, h)
+function conv(x::Array, h::Array)
     Lx = veclen(x)
     Lh = veclen(h)
     L  = Lx + Lh - 1
@@ -73,11 +73,11 @@ end
 
 
 """
-    y = maxconv(x, h)
+    y = maxconv(x::Array, h::Array)
 convolves signals x and h. The resulting signal has length max(Lx,Lh) which
 has nearly O(Lx*Log(Lx)) complexity when Lx>>Lh. This function uses fft to reduce complexity.
 """
-function maxconv(x, h)
+function maxconv(x::Array, h::Array)
     Lx = veclen(x)
     Lh = veclen(h)
     if Lx ≥ Lh
@@ -93,18 +93,17 @@ end
 
 
 """
-    y = rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Number}, mic::NTuple{3,Number})
+    y = rir(fs::Real, T60::Real, room::NTuple{3,Real}, src::NTuple{3,Real}, mic::NTuple{3,Real}; dtype=Float32)
 Generate room impulse response.
 """
-function rir(fs::Number, T60::Number, room::NTuple{3,Number}, src::NTuple{3,Number}, mic::NTuple{3,Number})
+function rir(fs::Real, T60::Real, room::NTuple{3,Real}, src::NTuple{3,Real}, mic::NTuple{3,Real}; dtype=Float32)
     γ, C = arcrc(T60, room)
     N = 2*C + 1
     L = floor(Int, fs*T60)
-    T = eltype(T60)
-    x = zeros(T, N)
-    y = zeros(T, N)
-    z = zeros(T, N)
-    h = zeros(T, L)
+    x = zeros(dtype, N)
+    y = zeros(dtype, N)
+    z = zeros(dtype, N)
+    h = zeros(dtype, L)
     xr, yr, zr = room  # room's size in meters
     xs, ys, zs = src   # source's coordinates in meters
     xm, ym, zm = mic   # micphone's coordinates in meters
@@ -139,10 +138,10 @@ end
 
 
 """
-    y = addEcho(wav::Array, fs::Number, T60::Number,
-                room::NTuple{3,Number},
-                src::NTuple{3,Number},
-                mic::NTuple{3,Number})
+    y = addEcho(wav::Array, fs::Real, T60::Real,
+                room::NTuple{3,Real},
+                src::NTuple{3,Real},
+                mic::NTuple{3,Real}; by="maxlen", dtype=Float32)
 Generate impulse response function online, and add reverberation effect to wav.
 ## Arguments
 - `wav`: sound samples
@@ -152,26 +151,25 @@ Generate impulse response function online, and add reverberation effect to wav.
 - `src`: source's coordinates in meters, e.g., (1, 2, 1.2)
 - `mic`: micphone's coordinates in meters, e.g., (1.6, 2.6, 1.0)
 """
-function addEcho(wav::Array, fs::Number, T60::Number,
-                 room::NTuple{3,Number},
-                 src ::NTuple{3,Number},
-                 mic ::NTuple{3,Number}; by="maxlen")
+function addEcho(wav::Array, fs::Real, T60::Real,
+                 room::NTuple{3,Real},
+                 src ::NTuple{3,Real},
+                 mic ::NTuple{3,Real}; by="maxlen", dtype=Float32)
 
     return ifelse(by=="maxlen",
-    maxconv(wav, rir(fs, T60, room, src, mic)),
-    conv(wav, rir(fs, T60, room, src, mic)))
+    maxconv(wav, rir(fs, T60, room, src, mic, dtype=dtype)),
+    conv(wav, rir(fs, T60, room, src, mic, dtype=dtype)))
 end
 
 
-function initAddEcho(path::String, period::Int)
+function initAddEcho(path::String, period::Int; dtype=Float32)
     counter = 1
     h = nothing
-    FILES = readdir(path)
+    FILES = readtype(".wav", path)
     function addecho(speech::Array)
         if counter == 1
-            file = rand(FILES,1)[1]
-            @assert endswith(file, "wav") "$path should only keep *.wav files"
-            h, fs = wavread(joinpath(path, file))
+            file = rand(FILES)
+            h = readwav(joinpath(path, file), type=Array{dtype})
         end # read another Room Impulse Response every period
         (counter == period) ? (counter=1) : (counter+=1)
         return conv(speech, h)
@@ -181,13 +179,13 @@ end
 
 
 """
-    initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number}) -> addecho(wav::Array)
+    initAddEcho(fs::Real, T₆₀Span::NTuple{2,Real}, roomSpan::NTuple{6,Real}; dtype=Float32) -> addecho(wav::Array)
 init reverberation effect function.
 + `fs` sampling rate
 + `T₆₀Span` T₆₀ range e.g. (0.05, 0.5)
 + `roomSpan`room size e.g. (MinL, MaxL, MinW, MaxW, MinH, MaxH)
 """
-function initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple{6,Number})
+function initAddEcho(fs::Real, T₆₀Span::NTuple{2,Real}, roomSpan::NTuple{6,Real}; by="maxlen", dtype=Float32)
     MinT₆₀, MaxT₆₀ = T₆₀Span
     MinL, MaxL, MinW, MaxW, MinH, MaxH = roomSpan
     @assert MinT₆₀ <= MaxT₆₀
@@ -202,7 +200,9 @@ function initAddEcho(fs::Number, T₆₀Span::NTuple{2,Number}, roomSpan::NTuple
         room = (Lx, Ly, Lz)
         src  = (rand()*Lx, rand()*Ly, rand()*Lz)
         mic  = (rand()*Lx, rand()*Ly, rand()*Lz)
-        return conv(wav, rir(fs, T₆₀, room, src, mic))
+        return ifelse(by=="maxlen",
+        maxconv(wav, rir(fs, T60, room, src, mic, dtype=dtype)),
+        conv(wav, rir(fs, T60, room, src, mic, dtype=dtype)))
     end
     return addecho
 end

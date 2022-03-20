@@ -25,23 +25,22 @@ end
 
 
 """
-    initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number}) -> addnoise(speech::Array)
+    initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number}; dtype=Float32) -> addnoise(speech::Array)
 init a adding noise function
 + `path` dir only having noise audios
 + `period` how often the addnoise function would change a background noise audio
 + `dBSpan` e.g. (dBMin, dBMax)
 """
-function initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number})
+function initAddNoise(path::String, period::Int, dBSpan::NTuple{2,Number}; dtype=Float32)
     counter = 1
     noise = nothing
-    FILES = readdir(path)
+    FILES = readtype(".wav", path)
     dBMin, dBMax = dBSpan
     @assert dBMin <= dBMax
     function addnoise(speech::Array)
         if counter == 1
-            file = rand(FILES)
-            @assert endswith(file, "wav") "$path should only keep *.wav files"
-            noise, fs = wavread(joinpath(path, file))
+            file  = rand(FILES)
+            noise = readwav(joinpath(path, file), type=Array{dtype})
         end # every period we read another noise
         (counter == period) ? (counter=1) : (counter+=1)
         return addNoise(speech, noise, rand()*(dBMax - dBMin) + dBMin)
@@ -61,7 +60,7 @@ init a adding noise function. Input is like:
 + `AbstractFloat` is the probability of being chosen
 + `Tuple{Real,Real}` is dB span e.g. (dBMin, dBMax)
 """
-function initAddNoise(noiselist::Vector{Tuple{String,Float64,Tuple{T,T}}}) where T <: Real
+function initAddNoise(noiselist::Vector{Tuple{String,Float64,Tuple{T,T}}}; dtype=Float32) where T <: Real
     n = length(noiselist)
     paths = Vector{String}(undef, n)
     probs = Vector{AbstractFloat}(undef, n)
@@ -91,7 +90,7 @@ function initAddNoise(noiselist::Vector{Tuple{String,Float64,Tuple{T,T}}}) where
         for i = 1:n
             if p < scale[i]
                 idxchosen = order[i]
-                noise, fs = wavread( rand(filelists[idxchosen]) )
+                noise = readwav(rand(filelists[idxchosen]), type=Array{dtype})
                 dBMin, dBMax = deciB[idxchosen]
                 return addNoise(speech, noise, rand()*(dBMax - dBMin) + dBMin)
             end
