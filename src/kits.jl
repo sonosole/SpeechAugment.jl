@@ -26,9 +26,9 @@ end
 
 export readwav
 """
-    readwav(file::String; type=Array{Float32}) -> data::Array{Float32}
+    readwav(file::AbstractString; type=Array{Float32}) -> data::Array{Float32}
 """
-function readwav(file::String; type=Array{Float32})
+function readwav(file::AbstractString; type=Array{Float32})
     y, fs, nbits, opt = wavread(file, format="native")
     cons = eltype(type)(1.0 / (2^(nbits - 1) - 1))
     data = convert(type, y) .* cons
