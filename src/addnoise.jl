@@ -6,18 +6,18 @@ export addNoise
     addNoise(speech::Array, noise::Array, dB::Number)
 add `noise` in `speech` according to dB
 """
-function addNoise(speech::Array{T}, noise::Array{T}, dB::Number) where T
+function addNoise(speech::Array{S}, noise::Array{N}, dB::Real) where {S,N}
     Ls = veclen(speech)
     Ln = veclen(noise)
-    if Ln<Ls
+    if Ln < Ls
         # noise is shoter, should be repeated
         noise = repeat(noise, div(Ls,Ln)+1)
         Ln = veclen(noise)
     end
-    s = floor(Int,rand()*(Ln-Ls) + 1);   # a random start index
+    s = floor(Int, rand()*(Ln-Ls) + 1);  # a random start index
     e = s + Ls - 1;                      # a random end index
     Es = sum(speech.^2);                 # energy of speech
-    En = sum(noise[s:e].^2) + eps(T);    # energy of noise
+    En = sum(noise[s:e].^2) + eps(N);    # energy of noise
     K  = sqrt(Es/En * 10^(-dB/10));
     speech .+= K * noise[s:e]
     return speech
