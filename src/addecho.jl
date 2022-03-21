@@ -3,7 +3,7 @@ export addEcho
 
 
 """
-    arcrc(T₆₀::Number, Lᵣ::NTuple{3,Real})
+    arcrc(T₆₀::Real, Lᵣ::NTuple{3,Real})
 
                   β * V
 `T₆₀ = ———————————————————————`\n
@@ -29,7 +29,7 @@ end
 
 
 """
-    y = directconv(x, h)
+    y = directconv(x::Array, h::Array)
 convolves vectors x and h. The resulting vector is length length(x)+length(h)-1 which
 has a O(Lx*Lh) complexity.
 """

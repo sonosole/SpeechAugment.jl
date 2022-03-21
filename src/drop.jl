@@ -22,12 +22,12 @@ end
 
 
 """
-    initDropWav(fs::Real, ratioSpan::NTuple{2,Number}) -> dropwav(wav::Array)
+    initDropWav(fs::Real, ratioSpan::NTuple{2,Real}) -> dropwav(wav::Array)
 init packet-loss-simulation function.
 + `fs` sampling rate e.g. 16000.0
 + `ratioSpan` e.g. (0.02, 0.09)
 """
-function initDropWav(fs::Real, ratioSpan::NTuple{2,Number})
+function initDropWav(fs::Real, ratioSpan::NTuple{2,Real})
     MinR, MaxR = ratioSpan
     @assert MinR <= MaxR
     function dropwav(wav::Array)

@@ -32,12 +32,12 @@ end
 
 
 """
-    initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number}) -> farfieldwav(wav::Array)
+    initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Real}) -> farfieldwav(wav::Array)
 init farfield effect function
 + `fs` sampling rate e.g. 16000.0
 + `maxvalueSpan` e.g. (0.2, 1.0)
 """
-function initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Number})
+function initFarfieldWav(fs::Real, maxvalueSpan::NTuple{2,Real})
     MinV, MaxV = maxvalueSpan
     @assert MinV <= MaxV
     function farfieldwav(wav::Array)
