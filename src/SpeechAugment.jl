@@ -12,5 +12,6 @@ include("./drop.jl")
 include("./farfield.jl")
 include("./speed.jl")
 include("./augment.jl")
+include("./firfilters.jl")
 
 end
